@@ -8,6 +8,15 @@
 	let leverage = 7;
 	let numLimits = 2;
 	let limitStyle: LimitStyle = 'aggressive';
+	
+	// Position sizing method and parameters
+	let positionSizing: 'fixed' | 'kelly' | 'fixed_fractional' | 'volatility' | 'risk_parity' = 'fixed';
+	let winRate = 55;
+	let avgWinLossRatio = 2.0;
+	let fixedFraction = 2.0;
+	let atrValue = 0.01;
+	let atrMultiplier = 2.0;
+	let targetRiskPct = 2.0;
 
 	// Calculate deposit_risk from leverage: deposit_risk = 1 / leverage
 	// For leverage 7, deposit_risk = 1/7 ≈ 0.143 (14.3%)
@@ -100,7 +109,14 @@
 			leverage,
 			num_limits: numLimits,
 			limit_style: limitStyle,
-			deposit_risk: depositRisk / 100 // Convert percentage to decimal
+			deposit_risk: depositRisk / 100, // Convert percentage to decimal
+			position_sizing: positionSizing,
+			win_rate: positionSizing === 'kelly' ? winRate / 100 : undefined,
+			avg_win_loss_ratio: positionSizing === 'kelly' ? avgWinLossRatio : undefined,
+			fixed_fraction: positionSizing === 'fixed_fractional' ? fixedFraction / 100 : undefined,
+			atr_value: positionSizing === 'volatility' ? atrValue : undefined,
+			atr_multiplier: positionSizing === 'volatility' ? atrMultiplier : undefined,
+			target_risk_pct: positionSizing === 'risk_parity' ? targetRiskPct : undefined
 		});
 
 		result = calculationResult;
@@ -112,11 +128,28 @@
 
 <div class="min-h-screen futuristic-bg p-6">
 	<div class="max-w-7xl mx-auto relative z-10">
-		<div class="mb-12 text-center">
-			<h1 class="premium-title">
-				<span class="title-main">Trading</span>
-				<span class="title-accent">Calculator</span>
-			</h1>
+		<div class="mb-8 text-center">
+			<div class="flex items-center justify-center gap-4 mb-0">
+				<div class="logo-container">
+					<svg class="logo-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<defs>
+							<linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+								<stop offset="0%" style="stop-color:#6366f1;stop-opacity:1" />
+								<stop offset="50%" style="stop-color:#8b5cf6;stop-opacity:1" />
+								<stop offset="100%" style="stop-color:#a78bfa;stop-opacity:1" />
+							</linearGradient>
+						</defs>
+						<path d="M32 8L12 20V44L32 56L52 44V20L32 8Z" fill="url(#logoGradient)" opacity="0.9"/>
+						<path d="M32 16L20 24V40L32 48L44 40V24L32 16Z" fill="none" stroke="url(#logoGradient)" stroke-width="2" opacity="0.6"/>
+						<circle cx="32" cy="32" r="4" fill="url(#logoGradient)"/>
+						<path d="M28 28L36 36M36 28L28 36" stroke="url(#logoGradient)" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+					</svg>
+				</div>
+				<h1 class="premium-title">
+					<span class="title-main">Trading</span>
+					<span class="title-accent">Calculator</span>
+				</h1>
+			</div>
 			<div class="title-subtitle">Precision Trading · 3 Take Profit Strategy</div>
 		</div>
 		
@@ -194,6 +227,96 @@
 				</div>
 				<p class="mt-1 text-xs text-indigo-400/70">Auto-calculated from leverage</p>
 			</div>
+
+			<!-- Advanced Position Sizing -->
+			<div class="col-span-2 mt-4 pt-4 border-t border-indigo-500/20">
+				<label class="text-sm font-medium text-indigo-300 mb-2 block">Position Sizing Method</label>
+				<select
+					bind:value={positionSizing}
+					class="mt-1 w-full rounded-lg futuristic-input px-3 py-2 text-sm text-indigo-100"
+				>
+					<option value="fixed" class="bg-gray-900">Fixed Risk (Default)</option>
+					<option value="kelly" class="bg-gray-900">Kelly Criterion</option>
+					<option value="fixed_fractional" class="bg-gray-900">Fixed Fractional</option>
+					<option value="volatility" class="bg-gray-900">Volatility-Based (ATR)</option>
+					<option value="risk_parity" class="bg-gray-900">Risk Parity</option>
+				</select>
+			</div>
+
+			{#if positionSizing === 'kelly'}
+				<div>
+					<label class="text-xs font-medium text-indigo-300/80 mb-2 block">Win Rate (%)</label>
+					<input
+						type="number"
+						min="0"
+						max="100"
+						step="0.1"
+						bind:value={winRate}
+						class="mt-1 w-full rounded-lg futuristic-input px-3 py-2 text-sm text-indigo-100"
+						placeholder="55"
+					/>
+				</div>
+				<div>
+					<label class="text-xs font-medium text-indigo-300/80 mb-2 block">Avg Win/Loss Ratio</label>
+					<input
+						type="number"
+						min="0"
+						step="0.1"
+						bind:value={avgWinLossRatio}
+						class="mt-1 w-full rounded-lg futuristic-input px-3 py-2 text-sm text-indigo-100"
+						placeholder="2.0"
+					/>
+				</div>
+			{:else if positionSizing === 'fixed_fractional'}
+				<div class="col-span-2">
+					<label class="text-xs font-medium text-indigo-300/80 mb-2 block">Fixed Fraction (%)</label>
+					<input
+						type="number"
+						min="0"
+						max="100"
+						step="0.1"
+						bind:value={fixedFraction}
+						class="mt-1 w-full rounded-lg futuristic-input px-3 py-2 text-sm text-indigo-100"
+						placeholder="2.0"
+					/>
+				</div>
+			{:else if positionSizing === 'volatility'}
+				<div>
+					<label class="text-xs font-medium text-indigo-300/80 mb-2 block">ATR Value</label>
+					<input
+						type="number"
+						min="0"
+						step="0.000001"
+						bind:value={atrValue}
+						class="mt-1 w-full rounded-lg futuristic-input px-3 py-2 text-sm text-indigo-100"
+						placeholder="0.01"
+					/>
+				</div>
+				<div>
+					<label class="text-xs font-medium text-indigo-300/80 mb-2 block">ATR Multiplier</label>
+					<input
+						type="number"
+						min="0"
+						step="0.1"
+						bind:value={atrMultiplier}
+						class="mt-1 w-full rounded-lg futuristic-input px-3 py-2 text-sm text-indigo-100"
+						placeholder="2.0"
+					/>
+				</div>
+			{:else if positionSizing === 'risk_parity'}
+				<div class="col-span-2">
+					<label class="text-xs font-medium text-indigo-300/80 mb-2 block">Target Risk per Trade (%)</label>
+					<input
+						type="number"
+						min="0"
+						max="100"
+						step="0.1"
+						bind:value={targetRiskPct}
+						class="mt-1 w-full rounded-lg futuristic-input px-3 py-2 text-sm text-indigo-100"
+						placeholder="2.0"
+					/>
+				</div>
+			{/if}
 
 			<div>
 				<label class="text-sm font-medium text-indigo-300 mb-2 block">Limits count</label>
@@ -388,9 +511,9 @@
 					</table>
 				</div>
 
-				<!-- STOP -->
+				<!-- STOP & LIQUIDATION -->
 				<div>
-					<h3 class="text-sm font-semibold mb-3 neon-text">Stop</h3>
+					<h3 class="text-sm font-semibold mb-3 neon-text">Stop & Liquidation</h3>
 					<table class="w-full text-sm border-collapse">
 						<tbody>
 							<tr class="border-b border-indigo-500/20">
@@ -417,7 +540,7 @@
 									</div>
 								</td>
 							</tr>
-							<tr>
+							<tr class="border-b border-indigo-500/20">
 								<td class="py-2 pr-4 font-medium text-red-400">Risk</td>
 								<td class="py-2">
 									<div class="flex items-center gap-2">
@@ -441,8 +564,62 @@
 									</div>
 								</td>
 							</tr>
+							<tr class="border-b border-indigo-500/20">
+								<td class="py-2 pr-4 font-medium text-orange-400">Liquidation Price</td>
+								<td class="py-2">
+									<div class="flex items-center gap-2">
+										<span class="font-mono text-orange-400">{result.liquidation_price}</span>
+										<button
+											type="button"
+											on:click={() => result && copyToClipboard(result.liquidation_price)}
+											class="text-xs px-1.5 py-0.5 rounded-lg hover:bg-indigo-500/20 transition"
+											title="Copy liquidation price"
+										>
+											{#if copiedValue === result?.liquidation_price}
+												<svg class="w-3.5 h-3.5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+													<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+												</svg>
+											{:else}
+												<svg class="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+													<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+												</svg>
+											{/if}
+										</button>
+									</div>
+								</td>
+							</tr>
+							<tr class="border-b border-indigo-500/20">
+								<td class="py-2 pr-4 font-medium text-indigo-300">Safety Margin</td>
+								<td class="py-2">
+									<div class="flex items-center gap-2">
+										<span class="font-mono text-indigo-200">{result.safety_margin_pct}%</span>
+										{#if parseFloat(result.safety_margin_pct) < 2}
+											<span class="ml-2 text-xs text-red-400">⚠️ Low!</span>
+										{:else if parseFloat(result.safety_margin_pct) < 5}
+											<span class="ml-2 text-xs text-yellow-400">⚠️ Moderate</span>
+										{:else}
+											<span class="ml-2 text-xs text-green-400">✅ Safe</span>
+										{/if}
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td class="py-2 pr-4 font-medium text-indigo-300">Distance to Liquidation</td>
+								<td class="py-2">
+									<span class="font-mono text-indigo-200">{result.liquidation_distance_pct}%</span>
+								</td>
+							</tr>
 						</tbody>
 					</table>
+					{#if parseFloat(result.safety_margin_pct) < 2}
+						<div class="mt-3 rounded-lg glass-card px-3 py-2 text-sm text-red-300 border border-red-500/30">
+							🚨 <strong>Warning:</strong> Stop loss is very close to liquidation price. Consider reducing leverage or moving stop loss further.
+						</div>
+					{:else if parseFloat(result.safety_margin_pct) < 5}
+						<div class="mt-3 rounded-lg glass-card px-3 py-2 text-sm text-yellow-300 border border-yellow-500/30">
+							⚠️ <strong>Caution:</strong> Safety margin is moderate. Monitor position closely.
+						</div>
+					{/if}
 				</div>
 
 				<!-- TAKE PROFITS -->

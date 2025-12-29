@@ -518,9 +518,39 @@
 	text-shadow: 0 0 30px rgba(99, 102, 241, 0.5);
 }
 
+/* Logo Styling */
+.logo-container {
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.logo-icon {
+	width: 48px;
+	height: 48px;
+	filter: drop-shadow(0 0 20px rgba(99, 102, 241, 0.6)) drop-shadow(0 0 40px rgba(139, 92, 246, 0.3));
+	animation: logoFloat 3s ease-in-out infinite;
+	transition: transform 0.3s ease;
+}
+
+.logo-icon:hover {
+	transform: scale(1.1) rotate(5deg);
+	filter: drop-shadow(0 0 30px rgba(99, 102, 241, 0.8)) drop-shadow(0 0 60px rgba(139, 92, 246, 0.5));
+}
+
+@keyframes logoFloat {
+	0%, 100% {
+		transform: translateY(0px) rotate(0deg);
+	}
+	50% {
+		transform: translateY(-8px) rotate(2deg);
+	}
+}
+
 /* Premium Title Styling */
 .premium-title {
-	font-size: clamp(2.5rem, 6vw, 4rem);
+	font-size: clamp(1.5rem, 3vw, 2rem);
 	font-weight: 800;
 	line-height: 1.1;
 	letter-spacing: -0.02em;
@@ -529,7 +559,7 @@
 	align-items: center;
 	justify-content: center;
 	gap: 0.3em;
-	margin-bottom: 1rem;
+	margin-bottom: 0;
 	position: relative;
 }
 
@@ -592,7 +622,7 @@
 	letter-spacing: 0.15em;
 	text-transform: uppercase;
 	color: rgba(255, 255, 255, 0.5);
-	margin-top: 1.5rem;
+	margin-top: 0.5rem;
 	position: relative;
 	display: inline-block;
 	padding: 0 2rem;

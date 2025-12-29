@@ -1,5 +1,6 @@
 export type Direction = 'long' | 'short';
 export type LimitStyle = 'aggressive' | 'equal' | 'moderate';
+export type PositionSizingMethod = 'fixed' | 'kelly' | 'fixed_fractional' | 'volatility' | 'risk_parity';
 
 export interface TradeLimit {
 	price: string;
@@ -11,6 +12,7 @@ export interface TakeProfit {
 	price: string;
 	move_pct: string;
 	usd: string;
+	risk_reward: string; // Risk/Reward ratio
 }
 
 export interface TradeCalculationResult {
@@ -19,8 +21,13 @@ export interface TradeCalculationResult {
 	entry_price: string;
 	stop_price: string;
 	stop_usd: string;
+	liquidation_price: string;
+	liquidation_distance_pct: string;
+	safety_margin_pct: string;
 	limits: TradeLimit[];
 	takes: TakeProfit[];
+	position_sizing_method?: string;
+	position_sizing_note?: string;
 }
 
 export interface TradeCalculationParams {
@@ -33,6 +40,17 @@ export interface TradeCalculationParams {
 	deposit_risk?: number;
 	stop_risk?: number;
 	tp_percents?: number[];
+	position_sizing?: PositionSizingMethod;
+	// For Kelly Criterion
+	win_rate?: number; // 0-1, e.g., 0.55 = 55%
+	avg_win_loss_ratio?: number; // e.g., 2.0 means average win is 2x average loss
+	// For Fixed Fractional
+	fixed_fraction?: number; // 0-1, e.g., 0.02 = 2% of account per trade
+	// For Volatility-based (ATR)
+	atr_value?: number; // ATR value for volatility-based sizing
+	atr_multiplier?: number; // Multiplier for ATR (default 2.0)
+	// For Risk Parity
+	target_risk_pct?: number; // Target risk percentage per trade
 }
 
 const BASE_LIMITS: Record<Direction, Record<LimitStyle, number[]>> = {
@@ -64,14 +82,65 @@ export function calculateTrade3TP(params: TradeCalculationParams): TradeCalculat
 		// TP1: 4% - quick profit target (common altcoin intraday move)
 		// TP2: 9% - moderate swing (typical altcoin daily range)
 		// TP3: 16% - larger move (still achievable for volatile alts, but conservative vs 25%)
-		tp_percents = [0.04, 0.09, 0.16]
+		tp_percents = [0.04, 0.09, 0.16],
+		position_sizing = 'fixed',
+		win_rate = 0.5,
+		avg_win_loss_ratio = 2.0,
+		fixed_fraction = 0.02,
+		atr_value = 0,
+		atr_multiplier = 2.0,
+		target_risk_pct = 0.02
 	} = params;
 
 	const normalizedDirection = direction.toLowerCase() as Direction;
 	
-	// Margin calculation: margin is based on deposit risk percentage
+	// Advanced Position Sizing
+	let calculated_margin = 0;
+	let sizing_method_name = 'Fixed Risk';
+	let sizing_note = '';
+
+	if (position_sizing === 'kelly') {
+		// Kelly Criterion: f = (bp - q) / b
+		// where f = fraction of capital, b = odds (win/loss ratio), p = win probability, q = loss probability
+		const p = win_rate;
+		const q = 1 - p;
+		const b = avg_win_loss_ratio;
+		const kelly_fraction = (b * p - q) / b;
+		// Use half-Kelly for safety (more conservative)
+		const safe_kelly = Math.max(0, Math.min(kelly_fraction * 0.5, 0.25)); // Cap at 25%
+		calculated_margin = deposit * safe_kelly;
+		sizing_method_name = 'Kelly Criterion (Half-Kelly)';
+		sizing_note = `Win Rate: ${(win_rate * 100).toFixed(1)}%, Win/Loss: ${avg_win_loss_ratio.toFixed(2)}x`;
+	} else if (position_sizing === 'fixed_fractional') {
+		// Fixed Fractional: Risk fixed percentage of account per trade
+		calculated_margin = deposit * fixed_fraction;
+		sizing_method_name = 'Fixed Fractional';
+		sizing_note = `${(fixed_fraction * 100).toFixed(1)}% of account per trade`;
+	} else if (position_sizing === 'volatility' && atr_value > 0) {
+		// Volatility-based: Size based on ATR (Average True Range)
+		// Position size inversely proportional to volatility
+		const volatility_factor = atr_value * atr_multiplier;
+		const base_risk = deposit * deposit_risk;
+		// Reduce position size if volatility is high
+		const volatility_adjusted_risk = base_risk / (1 + volatility_factor / current_price);
+		calculated_margin = Math.max(volatility_adjusted_risk, deposit * 0.01); // Minimum 1%
+		sizing_method_name = 'Volatility-Based (ATR)';
+		sizing_note = `ATR: ${atr_value.toFixed(6)}, Multiplier: ${atr_multiplier}x`;
+	} else if (position_sizing === 'risk_parity') {
+		// Risk Parity: Equal risk contribution across trades
+		calculated_margin = deposit * target_risk_pct;
+		sizing_method_name = 'Risk Parity';
+		sizing_note = `${(target_risk_pct * 100).toFixed(1)}% risk per trade`;
+	} else {
+		// Fixed: Default method (deposit risk percentage)
+		calculated_margin = deposit * deposit_risk;
+		sizing_method_name = 'Fixed Risk';
+		sizing_note = `${(deposit_risk * 100).toFixed(1)}% of deposit`;
+	}
+
+	// Margin calculation: margin is based on deposit risk percentage or advanced sizing
 	// Position size scales with leverage (higher leverage = larger position for same margin)
-	const margin = deposit * deposit_risk;
+	const margin = calculated_margin;
 	const position = margin * leverage;
 	const stop_usd = position * stop_risk;
 
@@ -146,14 +215,40 @@ export function calculateTrade3TP(params: TradeCalculationParams): TradeCalculat
 			? avg_price * (1 - stop_risk)
 			: avg_price * (1 + stop_risk);
 
-	const takes: TakeProfit[] = tp_percents.map((tp, i) => ({
-		level: i + 1,
-		price: (
-			normalizedDirection === 'long' ? avg_price * (1 + tp) : avg_price * (1 - tp)
-		).toFixed(6),
-		move_pct: (tp * 100).toFixed(2),
-		usd: (position * tp * TP_SPLITS[i]).toFixed(2)
-	}));
+	// Calculate liquidation price
+	// For long: liquidation = entry * (1 - 1/leverage)
+	// For short: liquidation = entry * (1 + 1/leverage)
+	const liquidation_price = normalizedDirection === 'long'
+		? avg_price * (1 - 1 / leverage)
+		: avg_price * (1 + 1 / leverage);
+	
+	// Calculate distance from entry to liquidation
+	const liquidation_distance_pct = normalizedDirection === 'long'
+		? ((avg_price - liquidation_price) / avg_price) * 100
+		: ((liquidation_price - avg_price) / avg_price) * 100;
+	
+	// Calculate safety margin (distance from stop to liquidation)
+	const stop_to_liquidation_pct = normalizedDirection === 'long'
+		? ((stop_price - liquidation_price) / avg_price) * 100
+		: ((liquidation_price - stop_price) / avg_price) * 100;
+	
+	const safety_margin_pct = stop_to_liquidation_pct;
+
+	// Calculate Risk/Reward ratios for each TP
+	const takes: TakeProfit[] = tp_percents.map((tp, i) => {
+		const tp_profit = position * tp * TP_SPLITS[i];
+		const risk_reward_ratio = stop_usd > 0 ? (tp_profit / stop_usd) : 0;
+		
+		return {
+			level: i + 1,
+			price: (
+				normalizedDirection === 'long' ? avg_price * (1 + tp) : avg_price * (1 - tp)
+			).toFixed(6),
+			move_pct: (tp * 100).toFixed(2),
+			usd: tp_profit.toFixed(2),
+			risk_reward: risk_reward_ratio.toFixed(2)
+		};
+	});
 
 	return {
 		margin: margin.toFixed(2),
@@ -161,8 +256,13 @@ export function calculateTrade3TP(params: TradeCalculationParams): TradeCalculat
 		entry_price: avg_price.toFixed(6),
 		stop_price: stop_price.toFixed(6),
 		stop_usd: stop_usd.toFixed(2),
+		liquidation_price: liquidation_price.toFixed(6),
+		liquidation_distance_pct: liquidation_distance_pct.toFixed(2),
+		safety_margin_pct: safety_margin_pct.toFixed(2),
 		limits,
-		takes
+		takes,
+		position_sizing_method: sizing_method_name,
+		position_sizing_note: sizing_note
 	};
 }
 
