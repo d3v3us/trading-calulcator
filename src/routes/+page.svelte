@@ -9,6 +9,10 @@
 	let numLimits = 2;
 	let limitStyle: LimitStyle = 'aggressive';
 
+	// Calculate deposit_risk from leverage: deposit_risk = 1 / leverage
+	// For leverage 7, deposit_risk = 1/7 ≈ 0.143 (14.3%)
+	$: depositRisk = (1 / leverage) * 100; // Convert to percentage
+
 	const leverageOptions = [3, 5, 7, 9, 12, 20, 27, 30, 40, 50];
 	const highLeverageThreshold = 20;
 
@@ -95,7 +99,8 @@
 			current_price: currentPrice,
 			leverage,
 			num_limits: numLimits,
-			limit_style: limitStyle
+			limit_style: limitStyle,
+			deposit_risk: depositRisk / 100 // Convert percentage to decimal
 		});
 
 		result = calculationResult;
@@ -174,6 +179,14 @@
 						</div>
 					{/if}
 				{/if}
+			</div>
+
+			<div>
+				<label class="text-sm font-medium">Deposit Risk (%)</label>
+				<div class="mt-1 w-full rounded-md border bg-gray-50 px-3 py-2 text-sm text-gray-700">
+					{depositRisk.toFixed(2)}%
+				</div>
+				<p class="mt-1 text-xs text-gray-500">Auto-calculated from leverage</p>
 			</div>
 
 			<div>
