@@ -1,0 +1,14 @@
+<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+	<defs>
+		<linearGradient id="faviconGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+			<stop offset="0%" style="stop-color:#6366f1;stop-opacity:1" />
+			<stop offset="50%" style="stop-color:#8b5cf6;stop-opacity:1" />
+			<stop offset="100%" style="stop-color:#a78bfa;stop-opacity:1" />
+		</linearGradient>
+	</defs>
+	<path d="M32 8L12 20V44L32 56L52 44V20L32 8Z" fill="url(#faviconGradient)" opacity="0.9"/>
+	<path d="M32 16L20 24V40L32 48L44 40V24L32 16Z" fill="none" stroke="url(#faviconGradient)" stroke-width="2" opacity="0.6"/>
+	<circle cx="32" cy="32" r="4" fill="url(#faviconGradient)"/>
+	<path d="M28 28L36 36M36 28L28 36" stroke="url(#faviconGradient)" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+</svg>
+
