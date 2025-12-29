@@ -27,6 +27,7 @@ export interface TradeCalculationParams {
 	deposit: number;
 	direction: Direction;
 	current_price: number;
+	leverage: number;
 	num_limits?: number;
 	limit_style?: LimitStyle;
 	deposit_risk?: number;
@@ -47,11 +48,6 @@ const BASE_LIMITS: Record<Direction, Record<LimitStyle, number[]>> = {
 	}
 };
 
-const LEVERAGE: Record<Direction, number> = {
-	long: 7,
-	short: 5
-};
-
 const TP_SPLITS = [0.4, 0.35, 0.25];
 
 export function calculateTrade3TP(params: TradeCalculationParams): TradeCalculationResult {
@@ -59,6 +55,7 @@ export function calculateTrade3TP(params: TradeCalculationParams): TradeCalculat
 		deposit,
 		direction,
 		current_price,
+		leverage,
 		num_limits = 2,
 		limit_style = 'aggressive',
 		deposit_risk = 0.143,
@@ -67,7 +64,9 @@ export function calculateTrade3TP(params: TradeCalculationParams): TradeCalculat
 	} = params;
 
 	const normalizedDirection = direction.toLowerCase() as Direction;
-	const leverage = LEVERAGE[normalizedDirection];
+	
+	// Margin calculation: margin is based on deposit risk percentage
+	// Position size scales with leverage (higher leverage = larger position for same margin)
 	const margin = deposit * deposit_risk;
 	const position = margin * leverage;
 	const stop_usd = position * stop_risk;
