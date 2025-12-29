@@ -110,53 +110,59 @@
 
 </script>
 
-<div class="min-h-screen bg-gray-50 p-6">
-	<div class="max-w-7xl mx-auto">
-		<h2 class="text-2xl font-semibold mb-6 text-center">Trade Calculator · 3 TP</h2>
+<div class="min-h-screen futuristic-bg p-6">
+	<div class="max-w-7xl mx-auto relative z-10">
+		<div class="mb-12 text-center">
+			<h1 class="premium-title">
+				<span class="title-main">Trading</span>
+				<span class="title-accent">Calculator</span>
+			</h1>
+			<div class="title-subtitle">Precision Trading · 3 Take Profit Strategy</div>
+		</div>
 		
 		<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 			<!-- LEFT: FORM -->
-			<div class="rounded-2xl border bg-white p-6 shadow-sm">
+			<div class="rounded-2xl glass-card p-6">
 				<div class="grid grid-cols-2 gap-4">
 			<div>
-				<label class="text-sm font-medium">Deposit ($)</label>
+				<label class="text-sm font-medium text-indigo-300 mb-2 block">Deposit ($)</label>
 				<input
 					type="number"
 					bind:value={deposit}
-					class="mt-1 w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+					class="mt-1 w-full rounded-lg futuristic-input px-3 py-2 text-sm text-indigo-100 placeholder-indigo-500"
 				/>
 			</div>
 
 			<div>
-				<label class="text-sm font-medium">Direction</label>
+				<label class="text-sm font-medium text-indigo-300 mb-2 block">Direction</label>
 				<select
 					bind:value={direction}
-					class="mt-1 w-full rounded-md border px-3 py-2 text-sm"
+					class="mt-1 w-full rounded-lg futuristic-input px-3 py-2 text-sm text-indigo-100"
 				>
-					<option value="long">Long</option>
-					<option value="short">Short</option>
+					<option value="long" class="bg-gray-900">Long</option>
+					<option value="short" class="bg-gray-900">Short</option>
 				</select>
 			</div>
 
 			<div>
-				<label class="text-sm font-medium">Current price</label>
+				<label class="text-sm font-medium text-indigo-300 mb-2 block">Current price</label>
 				<input
 					type="number"
 					step="0.000001"
 					bind:value={currentPrice}
-					class="mt-1 w-full rounded-md border px-3 py-2 text-sm"
+					class="mt-1 w-full rounded-lg futuristic-input px-3 py-2 text-sm text-indigo-100 placeholder-indigo-500"
 				/>
 			</div>
 
 			<div>
-				<label class="text-sm font-medium">Leverage</label>
+				<label class="text-sm font-medium text-indigo-300 mb-2 block">Leverage</label>
 				<div class="flex items-center gap-2">
 					<select
 						bind:value={leverage}
-						class="mt-1 flex-1 rounded-md border px-3 py-2 text-sm"
+						class="mt-1 flex-1 rounded-lg futuristic-input px-3 py-2 text-sm text-indigo-100"
 					>
 						{#each leverageOptions as option}
-							<option value={option}>{option}x</option>
+							<option value={option} class="bg-gray-900">{option}x</option>
 						{/each}
 					</select>
 					<div class="mt-1 text-2xl">
@@ -166,15 +172,15 @@
 				{#if true}
 					{@const message = getLeverageMessage(leverage)}
 					{#if message.type === 'success'}
-						<div class="mt-2 rounded-md bg-green-50 border border-green-200 px-3 py-2 text-sm text-green-800">
+						<div class="mt-2 rounded-lg glass-card px-3 py-2 text-sm text-green-300 border border-green-500/30">
 							{message.text}
 						</div>
 					{:else if message.type === 'warning'}
-						<div class="mt-2 rounded-md bg-yellow-50 border border-yellow-200 px-3 py-2 text-sm text-yellow-800">
+						<div class="mt-2 rounded-lg glass-card px-3 py-2 text-sm text-yellow-300 border border-yellow-500/30">
 							{message.text}
 						</div>
 					{:else if message.type === 'danger'}
-						<div class="mt-2 rounded-md bg-red-50 border border-red-200 px-3 py-2 text-sm text-red-800">
+						<div class="mt-2 rounded-lg glass-card px-3 py-2 text-sm text-red-300 border border-red-500/30">
 							{message.text}
 						</div>
 					{/if}
@@ -182,35 +188,35 @@
 			</div>
 
 			<div>
-				<label class="text-sm font-medium">Deposit Risk (%)</label>
-				<div class="mt-1 w-full rounded-md border bg-gray-50 px-3 py-2 text-sm text-gray-700">
+				<label class="text-sm font-medium text-indigo-300 mb-2 block">Deposit Risk (%)</label>
+				<div class="mt-1 w-full rounded-lg glass-card px-3 py-2 text-sm text-indigo-200 font-mono">
 					{depositRisk.toFixed(2)}%
 				</div>
-				<p class="mt-1 text-xs text-gray-500">Auto-calculated from leverage</p>
+				<p class="mt-1 text-xs text-indigo-400/70">Auto-calculated from leverage</p>
 			</div>
 
 			<div>
-				<label class="text-sm font-medium">Limits count</label>
+				<label class="text-sm font-medium text-indigo-300 mb-2 block">Limits count</label>
 				<select
 					bind:value={numLimits}
-					class="mt-1 w-full rounded-md border px-3 py-2 text-sm"
+					class="mt-1 w-full rounded-lg futuristic-input px-3 py-2 text-sm text-indigo-100"
 				>
-					<option value={0}>0</option>
-					<option value={1}>1</option>
-					<option value={2}>2</option>
-					<option value={3}>3</option>
+					<option value={0} class="bg-gray-900">0</option>
+					<option value={1} class="bg-gray-900">1</option>
+					<option value={2} class="bg-gray-900">2</option>
+					<option value={3} class="bg-gray-900">3</option>
 				</select>
 			</div>
 
 			<div class="col-span-2">
-				<label class="text-sm font-medium">Limit style</label>
+				<label class="text-sm font-medium text-indigo-300 mb-2 block">Limit style</label>
 				<select
 					bind:value={limitStyle}
-					class="mt-1 w-full rounded-md border px-3 py-2 text-sm"
+					class="mt-1 w-full rounded-lg futuristic-input px-3 py-2 text-sm text-indigo-100"
 				>
-					<option value="aggressive">Aggressive</option>
-					<option value="equal">Equal</option>
-					<option value="moderate">Moderate</option>
+					<option value="aggressive" class="bg-gray-900">Aggressive</option>
+					<option value="equal" class="bg-gray-900">Equal</option>
+					<option value="moderate" class="bg-gray-900">Moderate</option>
 				</select>
 			</div>
 				</div>
@@ -219,7 +225,7 @@
 					type="button"
 					on:click={handleCalculate}
 					disabled={isLoading}
-					class="mt-6 w-full rounded-md bg-black px-4 py-2 text-sm font-medium text-white hover:bg-neutral-800 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+					class="mt-6 w-full rounded-lg futuristic-button px-4 py-2 text-sm font-semibold text-white transition disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none flex items-center justify-center gap-2 relative overflow-hidden"
 				>
 					{#if isLoading}
 						<Loader size="sm" />
@@ -233,33 +239,33 @@
 			<!-- RIGHT: RESULTS TABLE -->
 			<div class="lg:sticky lg:top-6 lg:h-fit">
 				{#if isLoading}
-					<div class="rounded-2xl border bg-white p-6 shadow-sm flex items-center justify-center py-12">
+					<div class="rounded-2xl glass-card p-6 flex items-center justify-center py-12">
 						<Loader size="md" />
 					</div>
 				{:else if showOutput && result && !isLoading}
-					<div class="rounded-2xl border bg-white p-6 shadow-sm space-y-6 table-animate">
+					<div class="rounded-2xl glass-card-glow p-6 space-y-6 table-animate">
 						<!-- SUMMARY -->
 				<div>
-					<h3 class="text-sm font-semibold mb-3">Summary</h3>
+					<h3 class="text-sm font-semibold mb-3 neon-text">Summary</h3>
 					<table class="w-full text-sm border-collapse">
 						<tbody>
-							<tr class="border-b">
-								<td class="py-2 pr-4 font-medium">Margin</td>
+							<tr class="border-b border-indigo-500/20">
+								<td class="py-2 pr-4 font-medium text-indigo-300">Margin</td>
 								<td class="py-2">
 									<div class="flex items-center gap-2">
-										<span class="font-mono">${result.margin}</span>
+										<span class="font-mono text-indigo-100">${result.margin}</span>
 										<button
 											type="button"
 											on:click={() => result && copyToClipboard(result.margin)}
-											class="text-xs px-1.5 py-0.5 rounded hover:bg-gray-100 transition"
+											class="text-xs px-1.5 py-0.5 rounded-lg hover:bg-indigo-500/20 transition"
 											title="Copy margin"
 										>
 											{#if copiedValue === result?.margin}
-												<svg class="w-3.5 h-3.5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+												<svg class="w-3.5 h-3.5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 													<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
 												</svg>
 											{:else}
-												<svg class="w-3.5 h-3.5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+												<svg class="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 													<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
 												</svg>
 											{/if}
@@ -267,23 +273,23 @@
 									</div>
 								</td>
 							</tr>
-							<tr class="border-b">
-								<td class="py-2 pr-4 font-medium">Position</td>
+							<tr class="border-b border-indigo-500/20">
+								<td class="py-2 pr-4 font-medium text-indigo-300">Position</td>
 								<td class="py-2">
 									<div class="flex items-center gap-2">
-										<span class="font-mono">${result.position}</span>
+										<span class="font-mono text-indigo-100">${result.position}</span>
 										<button
 											type="button"
 											on:click={() => result && copyToClipboard(result.position)}
-											class="text-xs px-1.5 py-0.5 rounded hover:bg-gray-100 transition"
+											class="text-xs px-1.5 py-0.5 rounded-lg hover:bg-indigo-500/20 transition"
 											title="Copy position"
 										>
 											{#if copiedValue === result?.position}
-												<svg class="w-3.5 h-3.5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+												<svg class="w-3.5 h-3.5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 													<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
 												</svg>
 											{:else}
-												<svg class="w-3.5 h-3.5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+												<svg class="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 													<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
 												</svg>
 											{/if}
@@ -292,22 +298,22 @@
 								</td>
 							</tr>
 							<tr>
-								<td class="py-2 pr-4 font-medium">Entry price</td>
+								<td class="py-2 pr-4 font-medium text-indigo-300">Entry price</td>
 								<td class="py-2">
 									<div class="flex items-center gap-2">
-										<span class="font-mono">{result.entry_price}</span>
+										<span class="font-mono text-indigo-100">{result.entry_price}</span>
 										<button
 											type="button"
 											on:click={() => result && copyToClipboard(result.entry_price)}
-											class="text-xs px-1.5 py-0.5 rounded hover:bg-gray-100 transition"
+											class="text-xs px-1.5 py-0.5 rounded-lg hover:bg-indigo-500/20 transition"
 											title="Copy entry price"
 										>
 											{#if copiedValue === result?.entry_price}
-												<svg class="w-3.5 h-3.5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+												<svg class="w-3.5 h-3.5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 													<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
 												</svg>
 											{:else}
-												<svg class="w-3.5 h-3.5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+												<svg class="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 													<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
 												</svg>
 											{/if}
@@ -321,34 +327,34 @@
 
 				<!-- ENTRIES -->
 				<div>
-					<h3 class="text-sm font-semibold mb-3">Entries</h3>
+					<h3 class="text-sm font-semibold mb-3 neon-text">Entries</h3>
 					<table class="w-full text-sm border-collapse">
 						<thead>
-							<tr class="border-b bg-gray-50">
-								<th class="text-left py-2 px-3 font-medium">#</th>
-								<th class="text-left py-2 px-3 font-medium">Price</th>
-								<th class="text-left py-2 px-3 font-medium">Margin</th>
+							<tr class="border-b border-indigo-500/30 bg-indigo-500/10">
+								<th class="text-left py-2 px-3 font-medium text-indigo-300">#</th>
+								<th class="text-left py-2 px-3 font-medium text-indigo-300">Price</th>
+								<th class="text-left py-2 px-3 font-medium text-indigo-300">Margin</th>
 							</tr>
 						</thead>
 						<tbody>
 							{#each result.limits as limit, i}
-								<tr class="border-b">
-									<td class="py-2 px-3">{i + 1}</td>
+								<tr class="border-b border-indigo-500/20">
+									<td class="py-2 px-3 text-indigo-200">{i + 1}</td>
 									<td class="py-2 px-3">
 										<div class="flex items-center gap-2">
-											<span class="font-mono">{limit.price}</span>
+											<span class="font-mono text-indigo-100">{limit.price}</span>
 											<button
 												type="button"
-												on:click={() => copyToClipboard(limit.price)}
-												class="text-xs px-1.5 py-0.5 rounded hover:bg-gray-100 transition"
+											on:click={() => copyToClipboard(limit.price)}
+											class="text-xs px-1.5 py-0.5 rounded-lg hover:bg-indigo-500/20 transition"
 												title="Copy price"
 											>
-												{#if copiedValue === limit.price}
-													<svg class="w-3.5 h-3.5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-														<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-													</svg>
-												{:else}
-													<svg class="w-3.5 h-3.5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											{#if copiedValue === limit.price}
+												<svg class="w-3.5 h-3.5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+													<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+												</svg>
+											{:else}
+												<svg class="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 														<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
 													</svg>
 												{/if}
@@ -357,19 +363,19 @@
 									</td>
 									<td class="py-2 px-3">
 										<div class="flex items-center gap-2">
-											<span class="font-mono text-neutral-500">${limit.margin}</span>
+											<span class="font-mono text-indigo-200">${limit.margin}</span>
 											<button
 												type="button"
 												on:click={() => copyToClipboard(limit.margin)}
-												class="text-xs px-1.5 py-0.5 rounded hover:bg-gray-100 transition"
+												class="text-xs px-1.5 py-0.5 rounded-lg hover:bg-indigo-500/20 transition"
 												title="Copy margin"
 											>
-												{#if copiedValue === limit.margin}
-													<svg class="w-3.5 h-3.5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-														<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-													</svg>
-												{:else}
-													<svg class="w-3.5 h-3.5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											{#if copiedValue === limit.margin}
+												<svg class="w-3.5 h-3.5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+													<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+												</svg>
+											{:else}
+												<svg class="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 														<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
 													</svg>
 												{/if}
@@ -384,26 +390,26 @@
 
 				<!-- STOP -->
 				<div>
-					<h3 class="text-sm font-semibold mb-3">Stop</h3>
+					<h3 class="text-sm font-semibold mb-3 neon-text">Stop</h3>
 					<table class="w-full text-sm border-collapse">
 						<tbody>
-							<tr class="border-b">
-								<td class="py-2 pr-4 font-medium">Stop price</td>
+							<tr class="border-b border-indigo-500/20">
+								<td class="py-2 pr-4 font-medium text-indigo-300">Stop price</td>
 								<td class="py-2">
 									<div class="flex items-center gap-2">
-										<span class="font-mono">{result.stop_price}</span>
+										<span class="font-mono text-indigo-100">{result.stop_price}</span>
 										<button
 											type="button"
 											on:click={() => result && copyToClipboard(result.stop_price)}
-											class="text-xs px-1.5 py-0.5 rounded hover:bg-gray-100 transition"
+											class="text-xs px-1.5 py-0.5 rounded-lg hover:bg-indigo-500/20 transition"
 											title="Copy stop price"
 										>
 											{#if copiedValue === result?.stop_price}
-												<svg class="w-3.5 h-3.5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+												<svg class="w-3.5 h-3.5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 													<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
 												</svg>
 											{:else}
-												<svg class="w-3.5 h-3.5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+												<svg class="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 													<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
 												</svg>
 											{/if}
@@ -412,22 +418,22 @@
 								</td>
 							</tr>
 							<tr>
-								<td class="py-2 pr-4 font-medium text-red-600">Risk</td>
+								<td class="py-2 pr-4 font-medium text-red-400">Risk</td>
 								<td class="py-2">
 									<div class="flex items-center gap-2">
-										<span class="font-mono text-red-600">-${result.stop_usd}</span>
+										<span class="font-mono text-red-400">-${result.stop_usd}</span>
 										<button
 											type="button"
 											on:click={() => result && copyToClipboard(result.stop_usd)}
-											class="text-xs px-1.5 py-0.5 rounded hover:bg-gray-100 transition"
+											class="text-xs px-1.5 py-0.5 rounded-lg hover:bg-indigo-500/20 transition"
 											title="Copy risk amount"
 										>
 											{#if copiedValue === result?.stop_usd}
-												<svg class="w-3.5 h-3.5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+												<svg class="w-3.5 h-3.5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 													<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
 												</svg>
 											{:else}
-												<svg class="w-3.5 h-3.5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+												<svg class="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 													<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
 												</svg>
 											{/if}
@@ -441,57 +447,57 @@
 
 				<!-- TAKE PROFITS -->
 				<div>
-					<h3 class="text-sm font-semibold mb-3">Take Profits</h3>
+					<h3 class="text-sm font-semibold mb-3 neon-text">Take Profits</h3>
 					<table class="w-full text-sm border-collapse">
 						<thead>
-							<tr class="border-b bg-gray-50">
-								<th class="text-left py-2 px-3 font-medium">Level</th>
-								<th class="text-left py-2 px-3 font-medium">Price</th>
-								<th class="text-left py-2 px-3 font-medium">Move %</th>
-								<th class="text-left py-2 px-3 font-medium">Profit</th>
+							<tr class="border-b border-indigo-500/30 bg-indigo-500/10">
+								<th class="text-left py-2 px-3 font-medium text-indigo-300">Level</th>
+								<th class="text-left py-2 px-3 font-medium text-indigo-300">Price</th>
+								<th class="text-left py-2 px-3 font-medium text-indigo-300">Move %</th>
+								<th class="text-left py-2 px-3 font-medium text-indigo-300">Profit</th>
 							</tr>
 						</thead>
 						<tbody>
 							{#each result.takes as tp}
-								<tr class="border-b">
-									<td class="py-2 px-3">TP{tp.level}</td>
+								<tr class="border-b border-indigo-500/20">
+									<td class="py-2 px-3 text-indigo-200">TP{tp.level}</td>
 									<td class="py-2 px-3">
 										<div class="flex items-center gap-2">
-											<span class="font-mono">{tp.price}</span>
+											<span class="font-mono text-indigo-100">{tp.price}</span>
 											<button
 												type="button"
-												on:click={() => copyToClipboard(tp.price)}
-												class="text-xs px-1.5 py-0.5 rounded hover:bg-gray-100 transition"
+											on:click={() => copyToClipboard(tp.price)}
+											class="text-xs px-1.5 py-0.5 rounded-lg hover:bg-indigo-500/20 transition"
 												title="Copy price"
 											>
-												{#if copiedValue === tp.price}
-													<svg class="w-3.5 h-3.5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-														<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-													</svg>
-												{:else}
-													<svg class="w-3.5 h-3.5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											{#if copiedValue === tp.price}
+												<svg class="w-3.5 h-3.5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+													<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+												</svg>
+											{:else}
+												<svg class="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 														<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
 													</svg>
 												{/if}
 											</button>
 										</div>
 									</td>
-									<td class="py-2 px-3">{tp.move_pct}%</td>
+									<td class="py-2 px-3 text-indigo-200">{tp.move_pct}%</td>
 									<td class="py-2 px-3">
 										<div class="flex items-center gap-2">
-											<span class="font-mono text-green-600">+${tp.usd}</span>
+											<span class="font-mono text-green-400">+${tp.usd}</span>
 											<button
 												type="button"
-												on:click={() => copyToClipboard(tp.usd)}
-												class="text-xs px-1.5 py-0.5 rounded hover:bg-gray-100 transition"
+											on:click={() => copyToClipboard(tp.usd)}
+											class="text-xs px-1.5 py-0.5 rounded-lg hover:bg-indigo-500/20 transition"
 												title="Copy profit"
 											>
-												{#if copiedValue === tp.usd}
-													<svg class="w-3.5 h-3.5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-														<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-													</svg>
-												{:else}
-													<svg class="w-3.5 h-3.5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											{#if copiedValue === tp.usd}
+												<svg class="w-3.5 h-3.5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+													<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+												</svg>
+											{:else}
+												<svg class="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 														<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
 													</svg>
 												{/if}
