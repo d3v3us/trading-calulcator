@@ -60,7 +60,11 @@ export function calculateTrade3TP(params: TradeCalculationParams): TradeCalculat
 		limit_style = 'aggressive',
 		deposit_risk = 0.143,
 		stop_risk = 0.05,
-		tp_percents = [0.07, 0.15, 0.25]
+		// More conservative TPs for high speculative altcoins:
+		// TP1: 4% - quick profit target (common altcoin intraday move)
+		// TP2: 9% - moderate swing (typical altcoin daily range)
+		// TP3: 16% - larger move (still achievable for volatile alts, but conservative vs 25%)
+		tp_percents = [0.04, 0.09, 0.16]
 	} = params;
 
 	const normalizedDirection = direction.toLowerCase() as Direction;
