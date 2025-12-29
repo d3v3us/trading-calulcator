@@ -75,13 +75,33 @@ export function calculateTrade3TP(params: TradeCalculationParams): TradeCalculat
 	const position = margin * leverage;
 	const stop_usd = position * stop_risk;
 
+	// Determine margin splits based on limit_style
 	let splits: number[];
 	if (num_limits <= 1) {
 		splits = [1];
-	} else if (num_limits === 2) {
-		splits = [0.6, 0.4];
+	} else if (limit_style === 'equal') {
+		// Equal margin for all limits
+		const equalSplit = 1 / num_limits;
+		splits = Array(num_limits).fill(equalSplit);
+	} else if (limit_style === 'aggressive') {
+		// Aggressive: More margin at better entry prices (earlier limits)
+		// Try to move entry point higher by using more margin at better prices
+		if (num_limits === 2) {
+			splits = [0.7, 0.3]; // 70% at better price, 30% at worse
+		} else {
+			splits = [0.6, 0.3, 0.1]; // 60% at best, 30% at middle, 10% at worst
+		}
+	} else if (limit_style === 'moderate') {
+		// Moderate: More margin at worse entry prices (later limits)
+		// More conservative, enter with higher margin at less optimal prices
+		if (num_limits === 2) {
+			splits = [0.4, 0.6]; // 40% at better price, 60% at worse (more conservative)
+		} else {
+			splits = [0.3, 0.3, 0.4]; // 30% at best, 30% at middle, 40% at worst (most conservative)
+		}
 	} else {
-		splits = [0.5, 0.3, 0.2];
+		// Fallback (shouldn't happen)
+		splits = num_limits === 2 ? [0.5, 0.5] : [0.33, 0.33, 0.34];
 	}
 
 	const limits: TradeLimit[] = [];
@@ -96,8 +116,21 @@ export function calculateTrade3TP(params: TradeCalculationParams): TradeCalculat
 		});
 	} else {
 		const distances = BASE_LIMITS[normalizedDirection][limit_style];
+		
+		// For long: better price = lower price (more negative distance)
+		// For short: better price = higher price (more positive distance)
+		// Sort so first limit is always the BEST price for that direction
+		const sortedDistances = [...distances].slice(0, num_limits);
+		if (normalizedDirection === 'long') {
+			// Long: sort descending (most negative first = lowest/best price first)
+			sortedDistances.sort((a, b) => b - a);
+		} else {
+			// Short: sort descending (most positive first = highest/best price first)
+			sortedDistances.sort((a, b) => b - a);
+		}
+		
 		for (let i = 0; i < num_limits; i++) {
-			const price = current_price * (1 + distances[i]);
+			const price = current_price * (1 + sortedDistances[i]);
 			const margin_part = margin * splits[i];
 			limits.push({
 				price: price.toFixed(6),
