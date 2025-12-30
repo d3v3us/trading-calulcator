@@ -1,5 +1,5 @@
 export type Direction = 'long' | 'short';
-export type LimitStyle = 'aggressive' | 'equal' | 'moderate';
+export type LimitStyle = 'increasing' | 'equal' | 'decreasing';
 export type PositionSizingMethod = 'fixed' | 'kelly' | 'fixed_fractional' | 'volatility' | 'risk_parity';
 
 export interface TradeLimit {
@@ -55,14 +55,14 @@ export interface TradeCalculationParams {
 
 const BASE_LIMITS: Record<Direction, Record<LimitStyle, number[]>> = {
 	long: {
-		aggressive: [-0.002, -0.004, -0.006],
+		increasing: [-0.002, -0.004, -0.006],
 		equal: [-0.005, -0.010, -0.015],
-		moderate: [-0.010, -0.020, -0.030]
+		decreasing: [-0.010, -0.020, -0.030]
 	},
 	short: {
-		aggressive: [0.002, 0.004, 0.006],
+		increasing: [0.002, 0.004, 0.006],
 		equal: [0.01, 0.02, 0.04],
-		moderate: [0.02, 0.04, 0.06]
+		decreasing: [0.02, 0.04, 0.06]
 	}
 };
 
@@ -75,7 +75,7 @@ export function calculateTrade3TP(params: TradeCalculationParams): TradeCalculat
 		current_price,
 		leverage,
 		num_limits = 2,
-		limit_style = 'aggressive',
+		limit_style = 'increasing',
 		deposit_risk = 0.143,
 		stop_risk = 0.05,
 		// More conservative TPs for high speculative altcoins:
@@ -144,7 +144,10 @@ export function calculateTrade3TP(params: TradeCalculationParams): TradeCalculat
 	const position = margin * leverage;
 	const stop_usd = position * stop_risk;
 
-	// Determine margin splits based on limit_style
+	// Determine margin splits based on limit_style and direction
+	// After sorting, splits[0] is always applied to the BEST price for the direction
+	// For long: best = lowest price (most negative distance)
+	// For short: best = highest price (most positive distance)
 	let splits: number[];
 	if (num_limits <= 1) {
 		splits = [1];
@@ -152,19 +155,23 @@ export function calculateTrade3TP(params: TradeCalculationParams): TradeCalculat
 		// Equal margin for all limits
 		const equalSplit = 1 / num_limits;
 		splits = Array(num_limits).fill(equalSplit);
-	} else if (limit_style === 'aggressive') {
-		// Aggressive: More margin at better entry prices (earlier limits)
-		// Try to move entry point higher by using more margin at better prices
+	} else if (limit_style === 'increasing') {
+		// Increasing: More margin at better entry prices (aggressive)
+		// For long: more margin at lower prices (better buy price = cheaper entry)
+		// For short: more margin at higher prices (better sell price = more expensive entry)
+		// After sorting, splits[0] is always applied to the BEST price for direction
 		if (num_limits === 2) {
-			splits = [0.7, 0.3]; // 70% at better price, 30% at worse
+			splits = [0.7, 0.3]; // 70% at best price, 30% at worse
 		} else {
 			splits = [0.6, 0.3, 0.1]; // 60% at best, 30% at middle, 10% at worst
 		}
-	} else if (limit_style === 'moderate') {
-		// Moderate: More margin at worse entry prices (later limits)
-		// More conservative, enter with higher margin at less optimal prices
+	} else if (limit_style === 'decreasing') {
+		// Decreasing: More margin at worse entry prices (conservative, more likely to fill)
+		// For long: more margin at higher prices (worse buy price = more expensive, but fills easier)
+		// For short: more margin at lower prices (worse sell price = cheaper, but fills easier)
+		// After sorting, splits[0] is applied to best price, so we reverse to put more on worse prices
 		if (num_limits === 2) {
-			splits = [0.4, 0.6]; // 40% at better price, 60% at worse (more conservative)
+			splits = [0.4, 0.6]; // 40% at best price, 60% at worse (more conservative)
 		} else {
 			splits = [0.3, 0.3, 0.4]; // 30% at best, 30% at middle, 40% at worst (most conservative)
 		}
@@ -191,10 +198,12 @@ export function calculateTrade3TP(params: TradeCalculationParams): TradeCalculat
 		// Sort so first limit is always the BEST price for that direction
 		const sortedDistances = [...distances].slice(0, num_limits);
 		if (normalizedDirection === 'long') {
-			// Long: sort descending (most negative first = lowest/best price first)
-			sortedDistances.sort((a, b) => b - a);
+			// Long: sort ascending (most negative first = lowest/best price first)
+			// Example: [-0.002, -0.004] -> [-0.004, -0.002] (most negative = best)
+			sortedDistances.sort((a, b) => a - b);
 		} else {
 			// Short: sort descending (most positive first = highest/best price first)
+			// Example: [0.002, 0.004] -> [0.004, 0.002] (most positive = best)
 			sortedDistances.sort((a, b) => b - a);
 		}
 		

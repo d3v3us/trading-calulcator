@@ -7,7 +7,7 @@
 	let currentPrice = 0.466;
 	let leverage = 7;
 	let numLimits = 2;
-	let limitStyle: LimitStyle = 'aggressive';
+	let limitStyle: LimitStyle = 'increasing';
 	
 	// Position sizing method and parameters
 	let positionSizing: 'fixed' | 'kelly' | 'fixed_fractional' | 'volatility' | 'risk_parity' = 'fixed';
@@ -122,14 +122,23 @@
 		result = calculationResult;
 		showOutput = true;
 		isLoading = false;
+
+		// Scroll to results on mobile devices
+		// Use setTimeout to ensure DOM is updated
+		setTimeout(() => {
+			const resultsElement = document.getElementById('results-section');
+			if (resultsElement) {
+				resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+			}
+		}, 100);
 	}
 
 </script>
 
-<div class="min-h-screen futuristic-bg p-6">
+<div class="min-h-screen futuristic-bg p-4 sm:p-6">
 	<div class="max-w-7xl mx-auto relative z-10">
-		<div class="mb-8 text-center">
-			<div class="flex items-center justify-center gap-4 mb-0">
+		<div class="mb-6 sm:mb-8 text-center">
+			<div class="flex items-center justify-center gap-2 sm:gap-4 mb-0">
 				<div class="logo-container">
 					<svg class="logo-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
 						<defs>
@@ -153,10 +162,10 @@
 			<div class="title-subtitle">Precision Trading · 3 Take Profit Strategy</div>
 		</div>
 		
-		<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+		<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
 			<!-- LEFT: FORM -->
-			<div class="rounded-2xl glass-card p-6">
-				<div class="grid grid-cols-2 gap-4">
+			<div class="rounded-2xl glass-card p-4 sm:p-6">
+				<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
 			<div>
 				<label class="text-sm font-medium text-indigo-300 mb-2 block">Deposit ($)</label>
 				<input
@@ -187,7 +196,7 @@
 				/>
 			</div>
 
-			<div>
+			<div class="col-span-1 sm:col-span-2">
 				<label class="text-sm font-medium text-indigo-300 mb-2 block">Leverage</label>
 				<div class="flex items-center gap-2">
 					<select
@@ -198,7 +207,7 @@
 							<option value={option} class="bg-gray-900">{option}x</option>
 						{/each}
 					</select>
-					<div class="mt-1 text-2xl">
+					<div class="mt-1 text-2xl flex-shrink-0">
 						{getLeverageEmotion(leverage)}
 					</div>
 				</div>
@@ -229,7 +238,7 @@
 			</div>
 
 			<!-- Advanced Position Sizing -->
-			<div class="col-span-2 mt-4 pt-4 border-t border-indigo-500/20">
+			<div class="col-span-1 sm:col-span-2 mt-4 pt-4 border-t border-indigo-500/20">
 				<label class="text-sm font-medium text-indigo-300 mb-2 block">Position Sizing Method</label>
 				<select
 					bind:value={positionSizing}
@@ -268,7 +277,7 @@
 					/>
 				</div>
 			{:else if positionSizing === 'fixed_fractional'}
-				<div class="col-span-2">
+				<div class="col-span-1 sm:col-span-2">
 					<label class="text-xs font-medium text-indigo-300/80 mb-2 block">Fixed Fraction (%)</label>
 					<input
 						type="number"
@@ -304,7 +313,7 @@
 					/>
 				</div>
 			{:else if positionSizing === 'risk_parity'}
-				<div class="col-span-2">
+				<div class="col-span-1 sm:col-span-2">
 					<label class="text-xs font-medium text-indigo-300/80 mb-2 block">Target Risk per Trade (%)</label>
 					<input
 						type="number"
@@ -331,15 +340,15 @@
 				</select>
 			</div>
 
-			<div class="col-span-2">
+			<div class="col-span-1 sm:col-span-2">
 				<label class="text-sm font-medium text-indigo-300 mb-2 block">Limit style</label>
 				<select
 					bind:value={limitStyle}
 					class="mt-1 w-full rounded-lg futuristic-input px-3 py-2 text-sm text-indigo-100"
 				>
-					<option value="aggressive" class="bg-gray-900">Aggressive</option>
+					<option value="increasing" class="bg-gray-900">Increasing</option>
 					<option value="equal" class="bg-gray-900">Equal</option>
-					<option value="moderate" class="bg-gray-900">Moderate</option>
+					<option value="decreasing" class="bg-gray-900">Decreasing</option>
 				</select>
 			</div>
 				</div>
@@ -360,17 +369,18 @@
 			</div>
 
 			<!-- RIGHT: RESULTS TABLE -->
-			<div class="lg:sticky lg:top-6 lg:h-fit">
+			<div id="results-section" class="lg:sticky lg:top-6 lg:h-fit">
 				{#if isLoading}
-					<div class="rounded-2xl glass-card p-6 flex items-center justify-center py-12">
+					<div class="rounded-2xl glass-card p-4 sm:p-6 flex items-center justify-center py-12">
 						<Loader size="md" />
 					</div>
 				{:else if showOutput && result && !isLoading}
-					<div class="rounded-2xl glass-card-glow p-6 space-y-6 table-animate">
+					<div class="rounded-2xl glass-card-glow p-4 sm:p-6 space-y-4 sm:space-y-6 table-animate">
 						<!-- SUMMARY -->
 				<div>
 					<h3 class="text-sm font-semibold mb-3 neon-text">Summary</h3>
-					<table class="w-full text-sm border-collapse">
+					<div class="overflow-x-auto">
+						<table class="w-full text-sm border-collapse min-w-[280px]">
 						<tbody>
 							<tr class="border-b border-indigo-500/20">
 								<td class="py-2 pr-4 font-medium text-indigo-300">Margin</td>
@@ -446,12 +456,14 @@
 							</tr>
 						</tbody>
 					</table>
+					</div>
 				</div>
 
 				<!-- ENTRIES -->
 				<div>
 					<h3 class="text-sm font-semibold mb-3 neon-text">Entries</h3>
-					<table class="w-full text-sm border-collapse">
+					<div class="overflow-x-auto">
+						<table class="w-full text-sm border-collapse min-w-[280px]">
 						<thead>
 							<tr class="border-b border-indigo-500/30 bg-indigo-500/10">
 								<th class="text-left py-2 px-3 font-medium text-indigo-300">#</th>
@@ -509,12 +521,14 @@
 							{/each}
 						</tbody>
 					</table>
+					</div>
 				</div>
 
 				<!-- STOP & LIQUIDATION -->
 				<div>
 					<h3 class="text-sm font-semibold mb-3 neon-text">Stop & Liquidation</h3>
-					<table class="w-full text-sm border-collapse">
+					<div class="overflow-x-auto">
+						<table class="w-full text-sm border-collapse min-w-[280px]">
 						<tbody>
 							<tr class="border-b border-indigo-500/20">
 								<td class="py-2 pr-4 font-medium text-indigo-300">Stop price</td>
@@ -611,6 +625,7 @@
 							</tr>
 						</tbody>
 					</table>
+					</div>
 					{#if parseFloat(result.safety_margin_pct) < 2}
 						<div class="mt-3 rounded-lg glass-card px-3 py-2 text-sm text-red-300 border border-red-500/30">
 							🚨 <strong>Warning:</strong> Stop loss is very close to liquidation price. Consider reducing leverage or moving stop loss further.
@@ -625,7 +640,8 @@
 				<!-- TAKE PROFITS -->
 				<div>
 					<h3 class="text-sm font-semibold mb-3 neon-text">Take Profits</h3>
-					<table class="w-full text-sm border-collapse">
+					<div class="overflow-x-auto">
+						<table class="w-full text-sm border-collapse min-w-[280px]">
 						<thead>
 							<tr class="border-b border-indigo-500/30 bg-indigo-500/10">
 								<th class="text-left py-2 px-3 font-medium text-indigo-300">Level</th>
@@ -686,6 +702,16 @@
 						</tbody>
 					</table>
 					</div>
+				</div>
+
+				{#if result.position_sizing_method}
+					<div class="mt-4 rounded-lg glass-card px-4 py-3 text-sm">
+						<div class="font-medium text-indigo-200 mb-1">{result.position_sizing_method}</div>
+						{#if result.position_sizing_note}
+							<div class="text-xs text-indigo-400/70">{result.position_sizing_note}</div>
+						{/if}
+					</div>
+				{/if}
 					</div>
 				{/if}
 			</div>

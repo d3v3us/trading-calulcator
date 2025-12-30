@@ -527,11 +527,18 @@
 }
 
 .logo-icon {
-	width: 48px;
-	height: 48px;
+	width: 40px;
+	height: 40px;
 	filter: drop-shadow(0 0 20px rgba(99, 102, 241, 0.6)) drop-shadow(0 0 40px rgba(139, 92, 246, 0.3));
 	animation: logoFloat 3s ease-in-out infinite;
 	transition: transform 0.3s ease;
+}
+
+@media (min-width: 640px) {
+	.logo-icon {
+		width: 48px;
+		height: 48px;
+	}
 }
 
 .logo-icon:hover {
