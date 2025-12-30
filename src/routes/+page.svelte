@@ -146,8 +146,8 @@
 					</svg>
 				</div>
 				<h1 class="premium-title">
-					<span class="title-main">Trading</span>
-					<span class="title-accent">Calculator</span>
+					<span class="title-accent">Hypermona</span>
+					<span class="title-main">Trading Terminal</span>
 				</h1>
 			</div>
 			<div class="title-subtitle">Precision Trading · 3 Take Profit Strategy</div>
