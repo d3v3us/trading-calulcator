@@ -128,7 +128,35 @@
 		setTimeout(() => {
 			const resultsElement = document.getElementById('results-section');
 			if (resultsElement) {
-				resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+				// Calculate offset for better positioning
+				const offset = 20;
+				const elementPosition = resultsElement.getBoundingClientRect().top;
+				const offsetPosition = elementPosition + window.pageYOffset - offset;
+
+				// Custom smooth scroll with slower animation
+				const startPosition = window.pageYOffset;
+				const distance = offsetPosition - startPosition;
+				const duration = 1200; // Slower animation (1.2 seconds)
+				let start: number | null = null;
+
+				function step(timestamp: number) {
+					if (!start) start = timestamp;
+					const progress = timestamp - start;
+					const percentage = Math.min(progress / duration, 1);
+					
+					// Easing function for smooth animation (ease-in-out)
+					const ease = percentage < 0.5
+						? 2 * percentage * percentage
+						: 1 - Math.pow(-2 * percentage + 2, 2) / 2;
+
+					window.scrollTo(0, startPosition + distance * ease);
+
+					if (progress < duration) {
+						window.requestAnimationFrame(step);
+					}
+				}
+
+				window.requestAnimationFrame(step);
 			}
 		}, 100);
 	}

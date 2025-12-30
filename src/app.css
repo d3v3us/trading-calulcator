@@ -2,6 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Smooth scrolling with slower animation */
+html {
+	scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	html {
+		scroll-behavior: smooth;
+	}
+}
+
 /* Loader Styles */
 .loader {
 	border: 4px solid rgba(99, 102, 241, 0.2);
