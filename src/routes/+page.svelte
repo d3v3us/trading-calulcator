@@ -133,34 +133,11 @@
 				const elementPosition = resultsElement.getBoundingClientRect().top;
 				const offsetPosition = elementPosition + window.pageYOffset - offset;
 
-				// Custom smooth scroll with very smooth animation
-				const startPosition = window.pageYOffset;
-				const distance = offsetPosition - startPosition;
-				const duration = 1500; // Slower animation (1.5 seconds) for smoother feel
-				let start: number | null = null;
-
-				function step(timestamp: number) {
-					if (!start) start = timestamp;
-					const progress = timestamp - start;
-					const percentage = Math.min(progress / duration, 1);
-					
-					// Ultra-smooth easing function (ease-in-out-cubic for maximum smoothness)
-					// This creates a very smooth acceleration and deceleration
-					const ease = percentage < 0.5
-						? 4 * percentage * percentage * percentage
-						: 1 - Math.pow(-2 * percentage + 2, 3) / 2;
-
-					window.scrollTo({
-						top: startPosition + distance * ease,
-						behavior: 'auto' // Use 'auto' to avoid browser's default smooth scroll interference
-					});
-
-					if (progress < duration) {
-						window.requestAnimationFrame(step);
-					}
-				}
-
-				window.requestAnimationFrame(step);
+				// Instant scroll without animation
+				window.scrollTo({
+					top: offsetPosition,
+					behavior: 'auto'
+				});
 			}
 		}, 100);
 	}
